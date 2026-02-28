@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客树状导航 - 徐辰的博客</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-card: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --accent: #3b82f6;
+            --accent-hover: #2563eb;
+            --border: #475569;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --radius: 12px;
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1e1b4b 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: var(--radius);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: var(--radius);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+        }
+
+        .stat-card i {
+            font-size: 1.5rem;
+            color: var(--accent);
+        }
+
+        .stat-card .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 3rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .btn-primary:hover {
+            background: var(--accent-hover);
+        }
+
+        .tree-container {
+            background: rgba(30, 41, 59, 0.7);
+            border-radius: var(--radius);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+
+        .tree {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .tree-node {
+            margin-bottom: 0.5rem;
+        }
+
+        .tree-node-content {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            background: rgba(51, 65, 85, 0.5);
+            border: 1px solid transparent;
+            transition: var(--transition);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .tree-node-content:hover {
+            background: rgba(59, 130, 246, 0.15);
+            border-color: var(--accent);
+        }
+
+        .tree-node-content.expanded {
+            background: rgba(59, 130, 246, 0.2);
+        }
+
+        .toggle {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.75rem;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+
+        .toggle i {
+            font-size: 0.9rem;
+        }
+
+        .tree-node-content.expanded .toggle i {
+            transform: rotate(90deg);
+        }
+
+        .icon {
+            margin-right: 0.75rem;
+            width: 24px;
+            text-align: center;
+            color: var(--warning);
+        }
+
+        .file .icon {
+            color: var(--success);
+        }
+
+        .name {
+            font-weight: 500;
+            flex: 1;
+        }
+
+        .path {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-right: 1rem;
+            opacity: 0.7;
+        }
+
+        .actions {
+            display: flex;
+            gap: 0.5rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+
+        .tree-node-content:hover .actions {
+            opacity: 1;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            color: white;
+            border-color: var(--accent);
+        }
+
+        .tree-children {
+            list-style: none;
+            padding-left: 2.5rem;
+            margin-top: 0.5rem;
+            border-left: 2px dashed var(--border);
+            margin-left: 0.75rem;
+        }
+
+        .tree-children .tree-node {
+            position: relative;
+        }
+
+        .tree-children .tree-node:before {
+            content: '';
+            position: absolute;
+            left: -1.5rem;
+            top: 1.2rem;
+            width: 1rem;
+            height: 2px;
+            background: var(--border);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .highlight {
+            background-color: rgba(245, 158, 11, 0.3);
+            border-radius: 4px;
+            padding: 0 2px;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 2.2rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                min-width: 100%;
+            }
+            .tree-container {
+                padding: 1rem;
+            }
+            .tree-children {
+                padding-left: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tree"></i> 博客树状导航</h1>
+            <p class="subtitle">探索徐辰博客的完整文档结构，点击展开/折叠节点，快速定位内容</p>
+            <div class="stats">
+                <div class="stat-card">
+                    <i class="fas fa-folder"></i>
+                    <div>
+                        <div class="value" id="folder-count">0</div>
+                        <div class="label">文件夹</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-file-alt"></i>
+                    <div>
+                        <div class="value" id="file-count">0</div>
+                        <div class="label">文件</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-code-branch"></i>
+                    <div>
+                        <div class="value" id="depth-count">0</div>
+                        <div class="label">最大深度</div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-sync-alt"></i>
+                    <div>
+                        <div class="value" id="update-time">刚刚</div>
+                        <div class="label">更新于</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="搜索文件夹或文件...">
+            </div>
+            <div class="button-group">
+                <button class="btn" id="expand-all">
+                    <i class="fas fa-expand-alt"></i> 全部展开
+                </button>
+                <button class="btn" id="collapse-all">
+                    <i class="fas fa-compress-alt"></i> 全部折叠
+                </button>
+                <button class="btn btn-primary" id="refresh-tree">
+                    <i class="fas fa-redo"></i> 刷新
+                </button>
+            </div>
+        </div>
+
+        <div class="tree-container">
+            <div id="tree"></div>
+        </div>
+
+        <footer>
+            <p>© 2026 徐辰的博客 | 基于 VuePress & Theme Plume | 树状导航界面由 Roo 设计</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+                <i class="fas fa-info-circle"></i> 提示：点击文件夹图标展开/折叠，点击文件名称可在新标签页中打开（如果配置了链接）
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 树状数据
+        let treeData = null;
+        let filteredTree = null;
+        let searchTerm = '';
+
+        // 从JSON文件加载数据
+        async function loadTreeData() {
+            try {
+                const response = await fetch('tree-data.json');
+                const data = await response.json();
+                treeData = data.root;
+                updateStats(treeData);
+                renderTree(treeData);
+            } catch (error) {
+                console.error('加载树状数据失败:', error);
+                document.getElementById('tree').innerHTML = 
+                    '<div class="empty"><i class="fas fa-exclamation-triangle"></i> 无法加载树状数据，请检查网络或重新生成数据。</div>';
+            }
+        }
+
+        // 更新统计信息
+        function updateStats(node) {
+            let folders = 0;
+            let files = 0;
+            let maxDepth = 0;
+
+            function traverse(node, depth) {
+                if (depth > maxDepth) maxDepth = depth;
+                if (node.type === 'directory') {
+                    folders++;
+                    if (node.children) {
+                        node.children.forEach(child => traverse(child, depth + 1));
+                    }
+                } else {
+                    files++;
+                }
+            }
+
+            traverse(node, 0);
+
+            document.getElementById('folder-count').textContent = folders;
+            document.getElementById('file-count').textContent = files;
+            document.getElementById('depth-count').textContent = maxDepth;
+            document.getElementById('update-time').textContent = '刚刚';
+        }
+
+        // 渲染树状结构
+        function renderTree(node, containerId = 'tree', depth = 0) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!node) {
+                container.innerHTML = '<div class="empty">没有数据可显示</div>';
+                return;
+            }
+
+            // 创建根UL
+            const ul = document.createElement('ul');
+            ul.className = 'tree';
+            container.innerHTML = '';
+            container.appendChild(ul);
+
+            // 递归渲染节点
+            function renderNode(node, parentUl, depth) {
+                const li = document.createElement('li');
+                li.className = 'tree-node';
+                li.dataset.depth = depth;
+                li.dataset.type = node.type;
+                li.dataset.path = node.path;
+
+                const content = document.createElement('div');
+                content.className = 'tree-node-content';
+                if (node.type === 'directory') {
+                    content.classList.add('directory');
+                } else {
+                    content.classList.add('file');
+                }
+
+                // 切换按钮（仅目录）
+                const toggle = document.createElement('div');
+                toggle.className = 'toggle';
+                if (node.type === 'directory' && node.children && node.children.length > 0) {
+                    toggle.innerHTML = '<i class="fas fa-chevron-right"></i>';
+                    toggle.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const expanded = content.classList.toggle('expanded');
+                        const childrenUl = li.querySelector('.tree-children');
+                        if (childrenUl) {
+                            childrenUl.style.display = expanded ? 'block' : 'none';
+                        }
+                        toggle.querySelector('i').style.transform = expanded ? 'rotate(90deg)' : 'rotate(0deg)';
+                    });
+                } else {
+                    toggle.innerHTML = '<i class="fas fa-minus" style="opacity:0.3"></i>';
+                }
+
+                // 图标
+                const icon = document.createElement('div');
+                icon.className = 'icon';
+                if (node.type === 'directory') {
+                    icon.innerHTML = '<i class="fas fa-folder"></i>';
+                } else {
+                    icon.innerHTML = '<i class="fas fa-file-alt"></i>';
+                }
+
+                // 名称（高亮搜索词）
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'name';
+                let name = node.name;
+                if (searchTerm && name.toLowerCase().includes(searchTerm.toLowerCase())) {
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    name = name.replace(regex, '<span class="highlight">$1</span>');
+                    nameSpan.innerHTML = name;
+                } else {
+                    nameSpan.textContent = name;
+                }
+
+                // 路径
+                const pathSpan = document.createElement('span');
+                pathSpan.className = 'path';
+                pathSpan.textContent = node.path;
+
+                // 操作按钮
+                const actions = document.createElement('div');
+                actions.className = 'actions';
+                if (node.type === 'file') {
+                    actions.innerHTML = `
+                        <button class="action-btn" title="打开文件"><i class="fas fa-external-link-alt"></i></button>
+                        <button class="action-btn" title="复制路径"><i class="fas fa-copy"></i></button>
+                    `;
+                } else {
+                    actions.innerHTML = `
+                        <button class="action-btn" title="在新标签页中打开"><i class="fas fa-external-link-alt"></i></button>
+                        <button class="action-btn" title="复制路径"><i class="fas fa-copy"></i></button>
+                    `;
+                }
+
+                // 组装
+                content.appendChild(toggle);
+                content.appendChild(icon);
+                content.appendChild(nameSpan);
+                content.appendChild(pathSpan);
+                content.appendChild(actions);
+                li.appendChild(content);
+
+                // 子节点
+                if (node.type === 'directory' && node.children && node.children.length > 0) {
+                    const childrenUl = document.createElement('ul');
+                    childrenUl.className = 'tree-children';
+                    childrenUl.style.display = 'none'; // 默认折叠
+                    node.children.forEach(child => {
+                        renderNode(child, childrenUl, depth + 1);
+                    });
+                    li.appendChild(childrenUl);
+                }
+
+                parentUl.appendChild(li);
+
+                // 事件监听
+                content.addEventListener('click', (e) => {
+                    if (!e.target.closest('.toggle') && !e.target.closest('.action-btn')) {
+                        if (node.type === 'directory') {
+                            // 点击目录内容切换展开/折叠
+                            const toggleBtn = content.querySelector('.toggle');
+                            if (toggleBtn) toggleBtn.click();
+                        } else {
+                            // 点击文件：尝试打开（模拟）
+                            alert(`打开文件: ${node.path}\n（实际链接需要根据博客配置）`);
+                        }
+                    }
+                });
+
+                // 操作按钮事件
+                const actionButtons = actions.querySelectorAll('.action-btn');
+                actionButtons[0]?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (node.type === 'file') {
+                        // 构建实际URL（假设Markdown文件可通过VuePress路由访问）
+                        const url = `/docs/${node.path.replace(/\\/g, '/')}`;
+                        window.open(url, '_blank');
+                    } else {
+                        alert(`打开目录: ${node.path}`);
+                    }
+                });
+
+                actionButtons[1]?.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    navigator.clipboard.writeText(node.path)
+                        .then(() => alert(`已复制路径: ${node.path}`))
+                        .catch(err => console.error('复制失败:', err));
+                });
+            }
+
+            renderNode(node, ul, depth);
+        }
+
+        // 搜索功能
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', function() {
+                searchTerm = this.value.trim();
+                if (!treeData) return;
+
+                if (!searchTerm) {
+                    renderTree(treeData);
+                    return;
+                }
+
+                // 过滤树（简单实现：只显示匹配的节点及其祖先）
+                function filterNode(node, term) {
+                    const matches = node.name.toLowerCase().includes(term.toLowerCase());
+                    if (node.type === 'file') {
+                        return matches ? node : null;
+                    } else {
+                        // 目录：如果匹配或任何子节点匹配，则保留
+                        const filteredChildren = [];
+                        if (node.children) {
+                            node.children.forEach(child => {
+                                const filteredChild = filterNode(child, term);
+                                if (filteredChild) filteredChildren.push(filteredChild);
+                            });
+                        }
+                        if (matches || filteredChildren.length > 0) {
+                            return {
+                                ...node,
+                                children: filteredChildren
+                            };
+                        }
+                        return null;
+                    }
+                }
+
+                const filtered = filterNode(treeData, searchTerm);
+                renderTree(filtered);
+            });
+        }
+
+        // 按钮功能
+        function setupButtons() {
+            document.getElementById('expand-all').addEventListener('click', () => {
+                document.querySelectorAll('.tree-node-content.directory').forEach(content => {
+                    if (!content.classList.contains('expanded')) {
+                        content.classList.add('expanded');
+                        const toggle = content.querySelector('.toggle i');
+                        if (toggle) toggle.style.transform = 'rotate(90deg)';
+                        const childrenUl = content.closest('.tree-node').querySelector('.tree-children');
+                        if (childrenUl) childrenUl.style.display = 'block';
+                    }
+                });
+            });
+
+            document.getElementById('collapse-all').addEventListener('click', () => {
+                document.querySelectorAll('.tree-node-content.directory').forEach(content => {
+                    if (content.classList.contains('expanded')) {
+                        content.classList.remove('expanded');
+                        const toggle = content.querySelector('.toggle i');
+                        if (toggle) toggle.style.transform = 'rotate(0deg)';
+                        const childrenUl = content.closest('.tree-node').querySelector('.tree-children');
+                        if (childrenUl) childrenUl.style.display = 'none';
+                    }
+                });
+            });
+
+            document.getElementById('refresh-tree').addEventListener('click', () => {
+                loadTreeData();
+                document.getElementById('search-input').value = '';
+                searchTerm = '';
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTreeData();
+            setupSearch();
+            setupButtons();
+        });
+    </script>
+</body>
+</html>

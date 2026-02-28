@@ -1,0 +1,194 @@
+{
+  "generated": "2026-02-28T06:35:53.479Z",
+  "root": {
+    "name": "docs",
+    "path": "/",
+    "type": "directory",
+    "children": [
+      {
+        "name": "问题解决",
+        "path": "问题解决",
+        "type": "directory",
+        "children": []
+      },
+      {
+        "name": "项目讲解",
+        "path": "项目讲解",
+        "type": "directory",
+        "children": [
+          {
+            "name": "OM小车1.0",
+            "path": "项目讲解\\OM小车1.0",
+            "type": "directory",
+            "children": [
+              {
+                "name": "ROS1下位机",
+                "path": "项目讲解\\OM小车1.0\\ROS1下位机",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "stm驱动板",
+                "path": "项目讲解\\OM小车1.0\\stm驱动板",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "代码讲解教程.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\代码讲解教程.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "代码模块详解.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\代码模块详解.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "快速入门指南.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\快速入门指南.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "实践练习与实验.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\实践练习与实验.md",
+                    "type": "file",
+                    "ext": ".md"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "blog",
+        "path": "blog",
+        "type": "directory",
+        "children": [
+          {
+            "name": "preview",
+            "path": "blog\\preview",
+            "type": "directory",
+            "children": [
+              {
+                "name": "custom-component.example.md",
+                "path": "blog\\preview\\custom-component.example.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "markdown.md",
+                "path": "blog\\preview\\markdown.md",
+                "type": "file",
+                "ext": ".md"
+              }
+            ]
+          },
+          {
+            "name": "WSL2_Ubuntu18.04_Gazebo_GPU.md",
+            "path": "blog\\WSL2_Ubuntu18.04_Gazebo_GPU.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "demo",
+        "path": "demo",
+        "type": "directory",
+        "children": [
+          {
+            "name": "bar.md",
+            "path": "demo\\bar.md",
+            "type": "file",
+            "ext": ".md"
+          },
+          {
+            "name": "foo.md",
+            "path": "demo\\foo.md",
+            "type": "file",
+            "ext": ".md"
+          },
+          {
+            "name": "README.md",
+            "path": "demo\\README.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "en",
+        "path": "en",
+        "type": "directory",
+        "children": [
+          {
+            "name": "blog",
+            "path": "en\\blog",
+            "type": "directory",
+            "children": [
+              {
+                "name": "preview",
+                "path": "en\\blog\\preview",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "custom-component.example.md",
+                    "path": "en\\blog\\preview\\custom-component.example.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "markdown.md",
+                    "path": "en\\blog\\preview\\markdown.md",
+                    "type": "file",
+                    "ext": ".md"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "demo",
+            "path": "en\\demo",
+            "type": "directory",
+            "children": [
+              {
+                "name": "bar.md",
+                "path": "en\\demo\\bar.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "foo.md",
+                "path": "en\\demo\\foo.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "README.md",
+                "path": "en\\demo\\README.md",
+                "type": "file",
+                "ext": ".md"
+              }
+            ]
+          },
+          {
+            "name": "README.md",
+            "path": "en\\README.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "README.md",
+        "path": "README.md",
+        "type": "file",
+        "ext": ".md"
+      }
+    ]
+  }
+}

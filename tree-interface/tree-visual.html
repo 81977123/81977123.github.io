@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>博客树状图 - 徐辰的博客</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #0a192f;
+            --bg-secondary: #112240;
+            --bg-card: #233554;
+            --text-primary: #e6f1ff;
+            --text-secondary: #a8b2d1;
+            --accent: #64ffda;
+            --accent-hover: #52d7b8;
+            --border: #303c55;
+            --node-folder: #ffd166;
+            --node-file: #70d6ff;
+            --node-highlight: #ff70a6;
+            --line-color: #495670;
+            --radius: 8px;
+            --shadow: 0 10px 30px -15px rgba(2, 12, 27, 0.7);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        h1 i {
+            margin-right: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            border: 1px solid var(--border);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 0.9rem 1rem 0.9rem 3rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: var(--radius);
+            color: var(--text-primary);
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(100, 255, 218, 0.3);
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 0.75rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .btn:hover {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .tree-wrapper {
+            background: var(--bg-secondary);
+            border-radius: var(--radius);
+            padding: 2rem;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+            margin-bottom: 2rem;
+            overflow: auto;
+            min-height: 600px;
+            position: relative;
+        }
+
+        /* 树形图容器 */
+        .tree {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 根节点 */
+        .root-node {
+            margin-bottom: 3rem;
+            position: relative;
+        }
+
+        .node {
+            position: relative;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 1rem;
+            z-index: 1;
+        }
+
+        .node-content {
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            z-index: 2;
+            box-shadow: var(--shadow);
+        }
+
+        .node.folder .node-content {
+            border-color: var(--node-folder);
+            background: rgba(255, 209, 102, 0.1);
+        }
+
+        .node.file .node-content {
+            border-color: var(--node-file);
+            background: rgba(112, 214, 255, 0.1);
+        }
+
+        .node.highlight .node-content {
+            border-color: var(--node-highlight);
+            background: rgba(255, 112, 166, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255, 112, 166, 0.7); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 112, 166, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 112, 166, 0); }
+        }
+
+        .node-content:hover {
+            transform: scale(1.1);
+            border-width: 3px;
+        }
+
+        .node-icon {
+            font-size: 1.8rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .node.folder .node-icon {
+            color: var(--node-folder);
+        }
+
+        .node.file .node-icon {
+            color: var(--node-file);
+        }
+
+        .node-name {
+            font-size: 0.8rem;
+            text-align: center;
+            max-width: 70px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 500;
+        }
+
+        .node-path {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            margin-top: 0.3rem;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 子节点容器 */
+        .children {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+            position: relative;
+        }
+
+        /* 连接线 */
+        .node::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: var(--line-color);
+            transform: translateX(-50%);
+        }
+
+        .root-node > .node::before {
+            display: none;
+        }
+
+        .children::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            width: 2px;
+            height: 20px;
+            background: var(--line-color);
+            transform: translateX(-50%);
+        }
+
+        /* 水平连接线 */
+        .children .node:not(:first-child)::after {
+            content: '';
+            position: absolute;
+            top: -20px;
+            left: -50%;
+            width: 100%;
+            height: 2px;
+            background: var(--line-color);
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            body {
+                padding: 1rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box {
+                min-width: 100%;
+            }
+            .node-content {
+                width: 60px;
+                height: 60px;
+            }
+            .node-icon {
+                font-size: 1.4rem;
+            }
+            .node-name {
+                font-size: 0.7rem;
+            }
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        .empty {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        /* 文件列表模式切换 */
+        .view-toggle {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .view-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .view-btn.active {
+            background: var(--accent);
+            color: var(--bg-primary);
+            border-color: var(--accent);
+        }
+
+        .view-btn:first-child {
+            border-radius: var(--radius) 0 0 var(--radius);
+        }
+
+        .view-btn:last-child {
+            border-radius: 0 var(--radius) var(--radius) 0;
+        }
+
+        .list-view {
+            display: none;
+        }
+
+        .list-view .tree-node {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .list-view .tree-node:hover {
+            background: rgba(100, 255, 218, 0.1);
+        }
+
+        .list-view .tree-node i {
+            margin-right: 1rem;
+            width: 20px;
+        }
+
+        .list-view .tree-node.folder i {
+            color: var(--node-folder);
+        }
+
+        .list-view .tree-node.file i {
+            color: var(--node-file);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-tree"></i> 博客树状图</h1>
+            <p class="subtitle">以树形结构可视化博客文档，点击节点可快速导航</p>
+        </header>
+
+        <div class="controls">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="search-input" placeholder="搜索节点...">
+            </div>
+            <div class="button-group">
+                <button class="btn" id="toggle-view">
+                    <i class="fas fa-exchange-alt"></i> 切换视图
+                </button>
+                <button class="btn" id="expand-all">
+                    <i class="fas fa-expand-alt"></i> 全部展开
+                </button>
+                <button class="btn" id="collapse-all">
+                    <i class="fas fa-compress-alt"></i> 全部折叠
+                </button>
+            </div>
+        </div>
+
+        <div class="view-toggle">
+            <button class="view-btn active" data-view="tree">树状图</button>
+            <button class="view-btn" data-view="list">列表视图</button>
+        </div>
+
+        <div class="tree-wrapper">
+            <div id="tree-visual" class="tree-view">
+                <!-- 树状图将通过JavaScript动态生成 -->
+            </div>
+            <div id="tree-list" class="list-view">
+                <!-- 列表视图将通过JavaScript动态生成 -->
+            </div>
+        </div>
+
+        <footer>
+            <p>© 2026 徐辰的博客 | 树状图界面由 Roo 设计 | 数据基于 docs/ 目录实时生成</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">
+                <i class="fas fa-info-circle"></i> 提示：点击文件节点可跳转到对应页面，文件夹节点可展开/折叠
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // 树状数据
+        let treeData = null;
+        let currentView = 'tree'; // 'tree' 或 'list'
+
+        // 从JSON文件加载数据
+        async function loadTreeData() {
+            try {
+                const response = await fetch('tree-data.json');
+                const data = await response.json();
+                treeData = data.root;
+                renderTreeVisual(treeData);
+                renderListView(treeData);
+            } catch (error) {
+                console.error('加载树状数据失败:', error);
+                document.getElementById('tree-visual').innerHTML = 
+                    '<div class="empty"><i class="fas fa-exclamation-triangle"></i> 无法加载树状数据，请检查网络或重新生成数据。</div>';
+            }
+        }
+
+        // 渲染树状图
+        function renderTreeVisual(node, containerId = 'tree-visual') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!node) {
+                container.innerHTML = '<div class="empty">没有数据可显示</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // 递归渲染节点
+            function renderNode(node, parentElement, depth = 0) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = `node ${node.type}`;
+                if (node.type === 'file') {
+                    nodeDiv.classList.add('highlight'); // 文件高亮
+                }
+
+                const content = document.createElement('div');
+                content.className = 'node-content';
+                content.dataset.path = node.path;
+                content.dataset.type = node.type;
+
+                const icon = document.createElement('div');
+                icon.className = 'node-icon';
+                icon.innerHTML = node.type === 'directory' 
+                    ? '<i class="fas fa-folder"></i>' 
+                    : '<i class="fas fa-file-alt"></i>';
+
+                const name = document.createElement('div');
+                name.className = 'node-name';
+                name.textContent = node.name;
+
+                const path = document.createElement('div');
+                path.className = 'node-path';
+                path.textContent = node.path;
+
+                content.appendChild(icon);
+                content.appendChild(name);
+                content.appendChild(path);
+                nodeDiv.appendChild(content);
+
+                // 点击事件
+                content.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (node.type === 'file') {
+                        // 构建VuePress URL（假设Markdown文件映射到.html）
+                        const url = `/${node.path.replace(/\\/g, '/').replace('.md', '.html')}`;
+                        window.open(url, '_blank');
+                    } else {
+                        // 文件夹：切换子节点显示
+                        const children = nodeDiv.querySelector('.children');
+                        if (children) {
+                            const isHidden = children.style.display === 'none';
+                            children.style.display = isHidden ? 'flex' : 'none';
+                            icon.innerHTML = isHidden 
+                                ? '<i class="fas fa-folder-open"></i>' 
+                                : '<i class="fas fa-folder"></i>';
+                        }
+                    }
+                });
+
+                parentElement.appendChild(nodeDiv);
+
+                // 如果有子节点，创建children容器
+                if (node.type === 'directory' && node.children && node.children.length > 0) {
+                    const childrenContainer = document.createElement('div');
+                    childrenContainer.className = 'children';
+                    nodeDiv.appendChild(childrenContainer);
+
+                    // 默认折叠深度大于0的目录
+                    if (depth > 0) {
+                        childrenContainer.style.display = 'none';
+                        icon.innerHTML = '<i class="fas fa-folder"></i>';
+                    } else {
+                        icon.innerHTML = '<i class="fas fa-folder-open"></i>';
+                    }
+
+                    node.children.forEach(child => {
+                        renderNode(child, childrenContainer, depth + 1);
+                    });
+                }
+            }
+
+            // 创建根容器
+            const rootContainer = document.createElement('div');
+            rootContainer.className = 'tree';
+            container.appendChild(rootContainer);
+
+            const rootNode = document.createElement('div');
+            rootNode.className = 'root-node';
+            rootContainer.appendChild(rootNode);
+
+            renderNode(node, rootNode);
+        }
+
+        // 渲染列表视图
+        function renderListView(node, containerId = 'tree-list') {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            if (!node) {
+                container.innerHTML = '<div class="empty">没有数据可显示</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+
+            // 递归渲染节点
+            function renderNode(node, parentElement, depth = 0) {
+                const nodeDiv = document.createElement('div');
+                nodeDiv.className = `tree-node ${node.type}`;
+                nodeDiv.style.paddingLeft = `${depth * 1.5}rem`;
+
+                const icon = document.createElement('i');
+                icon.className = node.type === 'directory' 
+                    ? 'fas fa-folder' 
+                    : 'fas fa-file-alt';
+
+                const name = document.createElement('span');
+                name.textContent = node.name;
+                name.style.marginLeft = '0.5rem';
+                name.style.flex = '1';
+
+                const path = document.createElement('span');
+                path.className = 'path';
+                path.textContent = node.path;
+                path.style.fontSize = '0.8rem';
+                path.style.color = 'var(--text-secondary)';
+                path.style.marginLeft = '1rem';
+
+                nodeDiv.appendChild(icon);
+                nodeDiv.appendChild(name);
+                nodeDiv.appendChild(path);
+
+                // 点击事件
+                nodeDiv.addEventListener('click', () => {
+                    if (node.type === 'file') {
+                        const url = `/${node.path.replace(/\\/g, '/').replace('.md', '.html')}`;
+                        window.open(url, '_blank');
+                    }
+                });
+
+                parentElement.appendChild(nodeDiv);
+
+                // 递归子节点
+                if (node.type === 'directory' && node.children) {
+                    node.children.forEach(child => {
+                        renderNode(child, parentElement, depth + 1);
+                    });
+                }
+            }
+
+            renderNode(node, container);
+        }
+
+        // 切换视图
+        function setupViewToggle() {
+            const treeView = document.getElementById('tree-visual');
+            const listView = document.getElementById('tree-list');
+            const viewBtns = document.querySelectorAll('.view-btn');
+
+            viewBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const view = btn.dataset.view;
+                    viewBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    if (view === 'tree') {
+                        treeView.style.display = 'block';
+                        listView.style.display = 'none';
+                    } else {
+                        treeView.style.display = 'none';
+                        listView.style.display = 'block';
+                    }
+                });
+            });
+        }
+
+        // 搜索功能
+        function setupSearch() {
+            const searchInput = document.getElementById('search-input');
+            searchInput.addEventListener('input', function() {
+                const term = this.value.trim().toLowerCase();
+                // 简单高亮：在树状图和列表视图中标记匹配的节点
+                document.querySelectorAll('.node-name, .tree-node span').forEach(el => {
+                    const text = el.textContent.toLowerCase();
+                    if (term && text.includes(term)) {
+                        el.parentElement.classList.add('highlight');
+                    } else {
+                        el.parentElement.classList.remove('highlight');
+                    }
+                });
+            });
+        }
+
+        // 按钮功能
+        function setupButtons() {
+            document.getElementById('expand-all').addEventListener('click', () => {
+                document.querySelectorAll('.children').forEach(el => {
+                    el.style.display = 'flex';
+                });
+                document.querySelectorAll('.node.folder .node-icon').forEach(icon => {
+                    icon.innerHTML = '<i class="fas fa-folder-open"></i>';
+                });
+            });
+
+            document.getElementById('collapse-all').addEventListener('click', () => {
+                document.querySelectorAll('.children').forEach(el => {
+                    el.style.display = 'none';
+                });
+                document.querySelectorAll('.node.folder .node-icon').forEach(icon => {
+                    icon.innerHTML = '<i class="fas fa-folder"></i>';
+                });
+            });
+
+            document.getElementById('toggle-view').addEventListener('click', () => {
+                const current = document.querySelector('.view-btn.active').dataset.view;
+                const next = current === 'tree' ? 'list' : 'tree';
+                document.querySelector(`.view-btn[data-view="${next}"]`).click();
+            });
+        }
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            loadTreeData();
+            setupViewToggle();
+            setupSearch();
+            setupButtons();
+        });
+    </script>
+</body>
+</html>

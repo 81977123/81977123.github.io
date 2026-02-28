@@ -23,9 +23,9 @@ export default defineUserConfig({
       description: '开发记录和其他想分享的东西',
     },
     '/en/': {
-      title: 'xvcenh徐辰的博客',
+      title: "xvcenh's blog ",
       lang: 'en-US',
-      description: '开发记录和其他想分享的东西',
+      description: 'Development notes and other things to share',
     },
   },
 

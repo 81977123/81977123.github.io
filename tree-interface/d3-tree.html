@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>博客文档树状图 - 徐辰的博客</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", "Inter", sans-serif;
+            background-color: #f8fafc;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: auto;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            max-width: 1000px;
+            width: 100%;
+        }
+        .title {
+            font-size: 42px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 20px;
+        }
+        .controls {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            padding: 10px 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .btn.secondary {
+            background: #94a3b8;
+        }
+        .btn.secondary:hover {
+            background: #64748b;
+        }
+        .search-box {
+            padding: 10px 15px;
+            border: 2px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 16px;
+            width: 300px;
+            transition: border-color 0.2s;
+        }
+        .search-box:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 1400px;
+            min-height: 800px;
+            overflow: auto;
+        }
+        .link {
+            fill: none;
+            stroke: #3b82f6;
+            stroke-opacity: 0.8;
+            cursor: pointer;
+            transition: stroke-width 0.2s;
+        }
+        .link:hover {
+            stroke-opacity: 1;
+        }
+        .node-circle {
+            fill: #3b82f6;
+            stroke: #ffffff;
+            stroke-width: 3px;
+            cursor: pointer;
+            transition: r 0.2s;
+        }
+        .node-circle.directory {
+            fill: #10b981;
+        }
+        .node-circle.file {
+            fill: #f59e0b;
+        }
+        .node-circle.root {
+            fill: #8b5cf6;
+            stroke-width: 4px;
+        }
+        .node-label {
+            font-size: 16px;
+            fill: #1e293b;
+            font-weight: 500;
+            cursor: pointer;
+            pointer-events: none;
+        }
+        .tooltip {
+            position: absolute;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            border-radius: 6px;
+            font-size: 14px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+            z-index: 100;
+        }
+        .legend {
+            display: flex;
+            gap: 20px;
+            margin-top: 30px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #475569;
+        }
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+        .legend-color.directory {
+            background: #10b981;
+        }
+        .legend-color.file {
+            background: #f59e0b;
+        }
+        .legend-color.root {
+            background: #8b5cf6;
+        }
+        footer {
+            margin-top: 30px;
+            text-align: center;
+            color: #64748b;
+            font-size: 14px;
+            padding: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1 class="title">📚 博客文档树状图</h1>
+        <p class="subtitle">可视化展示 docs/ 目录下的文档结构，点击节点或连线可交互</p>
+        <div class="controls">
+            <input type="text" class="search-box" placeholder="搜索节点名称..." id="search-input">
+            <button class="btn" id="expand-all">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                全部展开
+            </button>
+            <button class="btn secondary" id="collapse-all">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                </svg>
+                全部折叠
+            </button>
+            <button class="btn secondary" id="toggle-links">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1h12zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2H2z"/>
+                </svg>
+                切换连线
+            </button>
+        </div>
+    </div>
+
+    <div class="container">
+        <svg id="tree-svg" width="100%" height="700"></svg>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color root"></div>
+            <span>根目录</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color directory"></div>
+            <span>文件夹</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color file"></div>
+            <span>文件</span>
+        </div>
+        <div class="legend-item">
+            <div style="width: 16px; height: 16px; background: #3b82f6; border-radius: 2px;"></div>
+            <span>连线粗细表示子节点数量</span>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 徐辰的博客 | 树状图使用 D3.js 绘制 | 数据基于 docs/ 目录实时生成</p>
+        <p>提示：点击文件夹节点可展开/折叠，点击文件节点或连线可跳转到对应页面</p>
+    </footer>
+
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 配置
+        const svg = d3.select("#tree-svg");
+        const width = svg.node().getBoundingClientRect().width;
+        const height = 700;
+        svg.attr("viewBox", [0, 0, width, height]);
+
+        const margin = { top: 40, right: 120, bottom: 40, left: 120 };
+        const innerWidth = width - margin.left - margin.right;
+        const innerHeight = height - margin.top - margin.bottom;
+
+        const g = svg.append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+
+        // 树布局
+        const treeLayout = d3.tree()
+            .size([innerHeight, innerWidth])
+            .separation((a, b) => a.parent === b.parent ? 1.2 : 2);
+
+        // 缩放行为
+        const zoom = d3.zoom()
+            .scaleExtent([0.1, 3])
+            .on("zoom", (event) => {
+                g.attr("transform", event.transform);
+            });
+        svg.call(zoom);
+
+        // 工具提示
+        const tooltip = d3.select("#tooltip");
+
+        // 加载数据
+        let root = null;
+        let treeData = null;
+
+        async function loadData() {
+            try {
+                const response = await fetch("tree-data-filtered.json");
+                const data = await response.json();
+                treeData = data.root;
+                initializeTree();
+            } catch (error) {
+                console.error("加载数据失败:", error);
+                g.append("text")
+                    .attr("x", innerWidth / 2)
+                    .attr("y", innerHeight / 2)
+                    .attr("text-anchor", "middle")
+                    .text("无法加载树状数据，请检查网络或重新生成数据。");
+            }
+        }
+
+        // 计算权重（后代文件数量）
+        function computeWeight(node) {
+            if (!node.children || node.children.length === 0) {
+                node.weight = (node.data.type === 'file') ? 1 : 0;
+                return node.weight;
+            }
+            let total = 0;
+            node.children.forEach(child => {
+                total += computeWeight(child);
+            });
+            node.weight = total;
+            return total;
+        }
+
+        // 初始化树
+        function initializeTree() {
+            // 转换数据为D3层次结构
+            root = d3.hierarchy(treeData, d => d.children);
+            root.x0 = innerHeight / 2;
+            root.y0 = 0;
+
+            // 计算权重
+            computeWeight(root);
+
+            // 展开所有节点
+            root.descendants().forEach(d => {
+                d._children = d.children;
+                if (d.depth >= 2) d.children = null; // 默认折叠深度大于1的节点
+            });
+
+            update(root);
+        }
+
+        // 更新树
+        function update(source) {
+            const duration = 250;
+
+            // 计算新布局
+            treeLayout(root);
+
+            const nodes = root.descendants();
+            const links = root.links();
+
+            // 节点位置
+            nodes.forEach(d => {
+                d.y = d.depth * 180; // 水平间距
+                d.x = d.x; // 垂直位置由树布局计算
+            });
+
+            // 选择链接
+            const link = g.selectAll(".link")
+                .data(links, d => d.target.id);
+
+            // 链接进入
+            const linkEnter = link.enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", d => diagonal(d.source, d.target))
+                .style("opacity", 0)
+                .on("click", linkClicked)
+                .on("mouseover", linkMouseover)
+                .on("mouseout", linkMouseout);
+
+            // 链接更新
+            link.merge(linkEnter)
+                .transition()
+                .duration(duration)
+                .attr("d", d => diagonal(d.source, d.target))
+                .style("opacity", 1)
+                .attr("stroke-width", d => {
+                    // 根据目标节点的权重决定连线粗细
+                    const weight = d.target.weight || 1;
+                    // 映射权重到粗细范围，例如 1-20
+                    const minWeight = 1, maxWeight = root.weight;
+                    const minWidth = 2, maxWidth = 20;
+                    if (maxWeight <= minWeight) return minWidth;
+                    const normalized = (weight - minWeight) / (maxWeight - minWeight);
+                    return minWidth + normalized * (maxWidth - minWidth);
+                });
+
+            // 链接退出
+            link.exit()
+                .transition()
+                .duration(duration)
+                .style("opacity", 0)
+                .remove();
+
+            // 选择节点
+            const node = g.selectAll(".node")
+                .data(nodes, d => d.id || (d.id = ++i));
+
+            // 节点进入
+            const nodeEnter = node.enter()
+                .append("g")
+                .attr("class", "node")
+                .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                .on("click", clicked)
+                .on("mouseover", showTooltip)
+                .on("mouseout", hideTooltip);
+
+            // 节点圆圈
+            nodeEnter.append("circle")
+                .attr("class", d => {
+                    let cls = "node-circle";
+                    if (d.depth === 0) cls += " root";
+                    else if (d.data.type === "directory") cls += " directory";
+                    else cls += " file";
+                    return cls;
+                })
+                .attr("r", d => d.depth === 0 ? 20 : (d.data.type === "directory" ? 16 : 12))
+                .style("fill", d => {
+                    if (d.depth === 0) return "#8b5cf6";
+                    return d.data.type === "directory" ? "#10b981" : "#f59e0b";
+                });
+
+            // 节点标签（仅显示名称，无路径）
+            nodeEnter.append("text")
+                .attr("class", "node-label")
+                .attr("dy", "0.35em")
+                .attr("x", d => d.children || d._children ? -25 : 25)
+                .style("text-anchor", d => d.children || d._children ? "end" : "start")
+                .text(d => d.data.name);
+
+            // 节点更新
+            const nodeUpdate = node.merge(nodeEnter)
+                .transition()
+                .duration(duration)
+                .attr("transform", d => `translate(${d.y},${d.x})`);
+
+            // 节点退出
+            node.exit()
+                .transition()
+                .duration(duration)
+                .attr("transform", d => `translate(${source.y},${source.x})`)
+                .style("opacity", 0)
+                .remove();
+
+            // 存储旧位置
+            nodes.forEach(d => {
+                d.x0 = d.x;
+                d.y0 = d.y;
+            });
+
+            // 对角线生成器（曲线）
+            function diagonal(s, t) {
+                return `M ${s.y} ${s.x}
+                        C ${(s.y + t.y) / 2} ${s.x},
+                          ${(s.y + t.y) / 2} ${t.x},
+                          ${t.y} ${t.x}`;
+            }
+        }
+
+        let i = 0;
+
+        // 点击节点
+        function clicked(event, d) {
+            if (d.data.type === "file") {
+                // 文件：跳转
+                const urlPath = d.data.path.replace(/\\/g, '/').replace(/\.md$/, '.html');
+                const url = urlPath.startsWith('/') ? urlPath : '/' + urlPath;
+                window.open(url, '_blank');
+                return;
+            }
+            // 文件夹：展开/折叠
+            if (d.children) {
+                d._children = d.children;
+                d.children = null;
+            } else {
+                d.children = d._children;
+                d._children = null;
+            }
+            update(d);
+        }
+
+        // 点击连线
+        function linkClicked(event, d) {
+            // 跳转到目标节点（如果是文件）或展开/折叠目录
+            const target = d.target;
+            if (target.data.type === "file") {
+                const urlPath = target.data.path.replace(/\\/g, '/').replace(/\.md$/, '.html');
+                const url = urlPath.startsWith('/') ? urlPath : '/' + urlPath;
+                window.open(url, '_blank');
+            } else {
+                // 如果是目录，切换展开/折叠
+                if (target.children) {
+                    target._children = target.children;
+                    target.children = null;
+                } else {
+                    target.children = target._children;
+                    target._children = null;
+                }
+                update(target);
+            }
+        }
+
+        // 连线鼠标事件
+        function linkMouseover(event, d) {
+            tooltip
+                .style("opacity", 1)
+                .html(`
+                    <strong>${d.target.data.name}</strong><br/>
+                    类型: ${d.target.data.type === 'directory' ? '文件夹' : '文件'}<br/>
+                    权重: ${d.target.weight || 0} 个子文件<br/>
+                    点击跳转或展开
+                `)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        }
+
+        function linkMouseout() {
+            tooltip.style("opacity", 0);
+        }
+
+        // 工具提示
+        function showTooltip(event, d) {
+            tooltip
+                .style("opacity", 1)
+                .html(`
+                    <strong>${d.data.name}</strong><br/>
+                    类型: ${d.data.type === 'directory' ? '文件夹' : '文件'}<br/>
+                    权重: ${d.weight || 0} 个子文件<br/>
+                    ${d.data.type === 'file' ? '点击跳转到页面' : '点击展开/折叠'}
+                `)
+                .style("left", (event.pageX + 10) + "px")
+                .style("top", (event.pageY - 10) + "px");
+        }
+
+        function hideTooltip() {
+            tooltip.style("opacity", 0);
+        }
+
+        // 按钮事件
+        document.getElementById("expand-all").addEventListener("click", () => {
+            root.descendants().forEach(d => {
+                if (d.data.type === "directory" && d._children) {
+                    d.children = d._children;
+                    d._children = null;
+                }
+            });
+            update(root);
+        });
+
+        document.getElementById("collapse-all").addEventListener("click", () => {
+            root.descendants().forEach(d => {
+                if (d.data.type === "directory" && d.children) {
+                    d._children = d.children;
+                    d.children = null;
+                }
+            });
+            update(root);
+        });
+
+        document.getElementById("toggle-links").addEventListener("click", () => {
+            const links = g.selectAll(".link");
+            const visible = links.style("opacity") !== "0";
+            links.transition().style("opacity", visible ? 0 : 1);
+        });
+
+        // 搜索
+        document.getElementById("search-input").addEventListener("input", function() {
+            const term = this.value.trim().toLowerCase();
+            if (!term) {
+                g.selectAll(".node").style("opacity", 1);
+                g.selectAll(".link").style("opacity", 1);
+                return;
+            }
+            g.selectAll(".node").style("opacity", 0.2);
+            g.selectAll(".link").style("opacity", 0.1);
+            g.selectAll(".node").each(function(d) {
+                if (d.data.name.toLowerCase().includes(term)) {
+                    d3.select(this).style("opacity", 1);
+                    // 高亮相关连线
+                    d3.selectAll(".link").filter(l => l.target === d || l.source === d)
+                        .style("opacity", 1);
+                }
+            });
+        });
+
+        // 初始化
+        loadData();
+    </script>
+</body>
+</html>

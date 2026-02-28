@@ -1,0 +1,428 @@
+{
+  "generated": "2026-02-28T06:24:47.689Z",
+  "root": {
+    "name": "docs",
+    "path": "/",
+    "type": "directory",
+    "children": [
+      {
+        "name": ".vuepress",
+        "path": ".vuepress",
+        "type": "directory",
+        "children": [
+          {
+            "name": ".cache",
+            "path": ".vuepress\\.cache",
+            "type": "directory",
+            "children": [
+              {
+                "name": "deps",
+                "path": ".vuepress\\.cache\\deps",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "markdown",
+                "path": ".vuepress\\.cache\\markdown",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "rendered",
+                    "path": ".vuepress\\.cache\\markdown\\rendered",
+                    "type": "directory",
+                    "children": []
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": ".temp",
+            "path": ".vuepress\\.temp",
+            "type": "directory",
+            "children": [
+              {
+                "name": "git",
+                "path": ".vuepress\\.temp\\git",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "internal",
+                "path": ".vuepress\\.temp\\internal",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "minisearchIndex",
+                    "path": ".vuepress\\.temp\\internal\\minisearchIndex",
+                    "type": "directory",
+                    "children": []
+                  }
+                ]
+              },
+              {
+                "name": "markdown-math",
+                "path": ".vuepress\\.temp\\markdown-math",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "md-power",
+                "path": ".vuepress\\.temp\\md-power",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "pages",
+                "path": ".vuepress\\.temp\\pages",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "blog",
+                    "path": ".vuepress\\.temp\\pages\\blog",
+                    "type": "directory",
+                    "children": [
+                      {
+                        "name": "archives",
+                        "path": ".vuepress\\.temp\\pages\\blog\\archives",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "b4ntcbuc",
+                        "path": ".vuepress\\.temp\\pages\\blog\\b4ntcbuc",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "categories",
+                        "path": ".vuepress\\.temp\\pages\\blog\\categories",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "gefamurf",
+                        "path": ".vuepress\\.temp\\pages\\blog\\gefamurf",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "tags",
+                        "path": ".vuepress\\.temp\\pages\\blog\\tags",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "uha4gdwc",
+                        "path": ".vuepress\\.temp\\pages\\blog\\uha4gdwc",
+                        "type": "directory",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "name": "demo",
+                    "path": ".vuepress\\.temp\\pages\\demo",
+                    "type": "directory",
+                    "children": [
+                      {
+                        "name": "27bopcn0",
+                        "path": ".vuepress\\.temp\\pages\\demo\\27bopcn0",
+                        "type": "directory",
+                        "children": []
+                      },
+                      {
+                        "name": "d8dy0enc",
+                        "path": ".vuepress\\.temp\\pages\\demo\\d8dy0enc",
+                        "type": "directory",
+                        "children": []
+                      }
+                    ]
+                  },
+                  {
+                    "name": "en",
+                    "path": ".vuepress\\.temp\\pages\\en",
+                    "type": "directory",
+                    "children": [
+                      {
+                        "name": "blog",
+                        "path": ".vuepress\\.temp\\pages\\en\\blog",
+                        "type": "directory",
+                        "children": [
+                          {
+                            "name": "archives",
+                            "path": ".vuepress\\.temp\\pages\\en\\blog\\archives",
+                            "type": "directory",
+                            "children": []
+                          },
+                          {
+                            "name": "categories",
+                            "path": ".vuepress\\.temp\\pages\\en\\blog\\categories",
+                            "type": "directory",
+                            "children": []
+                          },
+                          {
+                            "name": "dcuxqe33",
+                            "path": ".vuepress\\.temp\\pages\\en\\blog\\dcuxqe33",
+                            "type": "directory",
+                            "children": []
+                          },
+                          {
+                            "name": "hece7urt",
+                            "path": ".vuepress\\.temp\\pages\\en\\blog\\hece7urt",
+                            "type": "directory",
+                            "children": []
+                          },
+                          {
+                            "name": "tags",
+                            "path": ".vuepress\\.temp\\pages\\en\\blog\\tags",
+                            "type": "directory",
+                            "children": []
+                          }
+                        ]
+                      },
+                      {
+                        "name": "demo",
+                        "path": ".vuepress\\.temp\\pages\\en\\demo",
+                        "type": "directory",
+                        "children": [
+                          {
+                            "name": "373zni09",
+                            "path": ".vuepress\\.temp\\pages\\en\\demo\\373zni09",
+                            "type": "directory",
+                            "children": []
+                          },
+                          {
+                            "name": "pb6q56th",
+                            "path": ".vuepress\\.temp\\pages\\en\\demo\\pb6q56th",
+                            "type": "directory",
+                            "children": []
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "name": "shiki",
+                "path": ".vuepress\\.temp\\shiki",
+                "type": "directory",
+                "children": []
+              }
+            ]
+          },
+          {
+            "name": "public",
+            "path": ".vuepress\\public",
+            "type": "directory",
+            "children": []
+          },
+          {
+            "name": "theme",
+            "path": ".vuepress\\theme",
+            "type": "directory",
+            "children": [
+              {
+                "name": "components",
+                "path": ".vuepress\\theme\\components",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "styles",
+                "path": ".vuepress\\theme\\styles",
+                "type": "directory",
+                "children": []
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "问题解决",
+        "path": "问题解决",
+        "type": "directory",
+        "children": []
+      },
+      {
+        "name": "项目讲解",
+        "path": "项目讲解",
+        "type": "directory",
+        "children": [
+          {
+            "name": "OM小车1.0",
+            "path": "项目讲解\\OM小车1.0",
+            "type": "directory",
+            "children": [
+              {
+                "name": "ROS1下位机",
+                "path": "项目讲解\\OM小车1.0\\ROS1下位机",
+                "type": "directory",
+                "children": []
+              },
+              {
+                "name": "stm驱动板",
+                "path": "项目讲解\\OM小车1.0\\stm驱动板",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "代码讲解教程.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\代码讲解教程.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "代码模块详解.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\代码模块详解.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "快速入门指南.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\快速入门指南.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "实践练习与实验.md",
+                    "path": "项目讲解\\OM小车1.0\\stm驱动板\\实践练习与实验.md",
+                    "type": "file",
+                    "ext": ".md"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "name": "blog",
+        "path": "blog",
+        "type": "directory",
+        "children": [
+          {
+            "name": "preview",
+            "path": "blog\\preview",
+            "type": "directory",
+            "children": [
+              {
+                "name": "custom-component.example.md",
+                "path": "blog\\preview\\custom-component.example.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "markdown.md",
+                "path": "blog\\preview\\markdown.md",
+                "type": "file",
+                "ext": ".md"
+              }
+            ]
+          },
+          {
+            "name": "WSL2_Ubuntu18.04_Gazebo_GPU.md",
+            "path": "blog\\WSL2_Ubuntu18.04_Gazebo_GPU.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "demo",
+        "path": "demo",
+        "type": "directory",
+        "children": [
+          {
+            "name": "bar.md",
+            "path": "demo\\bar.md",
+            "type": "file",
+            "ext": ".md"
+          },
+          {
+            "name": "foo.md",
+            "path": "demo\\foo.md",
+            "type": "file",
+            "ext": ".md"
+          },
+          {
+            "name": "README.md",
+            "path": "demo\\README.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "en",
+        "path": "en",
+        "type": "directory",
+        "children": [
+          {
+            "name": "blog",
+            "path": "en\\blog",
+            "type": "directory",
+            "children": [
+              {
+                "name": "preview",
+                "path": "en\\blog\\preview",
+                "type": "directory",
+                "children": [
+                  {
+                    "name": "custom-component.example.md",
+                    "path": "en\\blog\\preview\\custom-component.example.md",
+                    "type": "file",
+                    "ext": ".md"
+                  },
+                  {
+                    "name": "markdown.md",
+                    "path": "en\\blog\\preview\\markdown.md",
+                    "type": "file",
+                    "ext": ".md"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "name": "demo",
+            "path": "en\\demo",
+            "type": "directory",
+            "children": [
+              {
+                "name": "bar.md",
+                "path": "en\\demo\\bar.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "foo.md",
+                "path": "en\\demo\\foo.md",
+                "type": "file",
+                "ext": ".md"
+              },
+              {
+                "name": "README.md",
+                "path": "en\\demo\\README.md",
+                "type": "file",
+                "ext": ".md"
+              }
+            ]
+          },
+          {
+            "name": "README.md",
+            "path": "en\\README.md",
+            "type": "file",
+            "ext": ".md"
+          }
+        ]
+      },
+      {
+        "name": "README.md",
+        "path": "README.md",
+        "type": "file",
+        "ext": ".md"
+      }
+    ]
+  }
+}
