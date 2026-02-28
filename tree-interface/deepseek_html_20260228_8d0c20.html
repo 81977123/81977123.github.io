@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文件目录树 · 树干粗细体现文件数量 + 圆角末端</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background-color: #faf8f2;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .tree-container {
+            background: #fefdf7;
+            border-radius: 40px 40px 20px 20px;
+            box-shadow: 0 20px 30px rgba(60, 40, 20, 0.3);
+            padding: 20px;
+        }
+        .title {
+            font-size: 42px;
+            font-weight: 500;
+            fill: #3a2c1b;
+        }
+        .subtitle {
+            font-size: 18px;
+            fill: #6b4f35;
+        }
+        .footer {
+            font-size: 16px;
+            fill: #8b7a62;
+        }
+        /* 连线 —— 动态粗细在JS中设置，圆角末端 */
+        .link {
+            fill: none;
+            stroke: #b68b6e;
+            stroke-opacity: 0.7;
+            transition: stroke-opacity 0.2s;
+            stroke-linecap: round;  /* 使枝干末端变成圆角 */
+        }
+        /* 节点组 */
+        .node {
+            cursor: default;
+        }
+        /* 文件节点组：可点击 */
+        .node.file {
+            cursor: pointer;
+        }
+        /* 节点圆圈 */
+        .node-circle {
+            fill: #7d9b76;
+            stroke: #fff8e7;
+            stroke-width: 3px;
+            filter: drop-shadow(2px 4px 4px rgba(0,0,0,0.2));
+        }
+        .node.file .node-circle {
+            fill: #e9b56c;
+            stroke: #ffecb3;
+            stroke-width: 4px;
+            filter: drop-shadow(0 0 8px #f7d45a);
+        }
+        .source-circle {
+            fill: #a5682a;
+            stroke: #fbe49b;
+            stroke-width: 6px;
+            filter: drop-shadow(0 0 10px #fabc60);
+        }
+        .node-label {
+            font-size: 18px;
+            fill: #2c3e2b;
+            font-weight: 500;
+            text-shadow: 0 1px 1px white;
+        }
+        .node.file .node-label {
+            fill: #b3570e;
+            font-weight: 700;
+            text-decoration: underline wavy #f5b35c 2px;
+            text-underline-offset: 5px;
+        }
+        .source-label {
+            font-size: 22px;
+            font-weight: 600;
+            fill: #4e3a26;
+        }
+        .node.file:hover .node-circle {
+            stroke: #ffdd99;
+            stroke-width: 6px;
+            filter: drop-shadow(0 0 15px #fdaa4b);
+        }
+        .node.file:hover .node-label {
+            fill: #8e3f00;
+        }
+    </style>
+</head>
+<body>
+<div class="tree-container">
+    <svg width="1300" height="900"></svg>
+</div>
+
+<script>
+    (function() {
+        const svg = d3.select("svg");
+        const width = +svg.attr("width");
+        const height = +svg.attr("height");
+
+        // ---------- 文件目录数据 (带类型和链接) ----------
+        const data = {
+            name: "我的文件库",
+            type: "directory",
+            children: [
+                {
+                    name: "📁 文档",
+                    type: "directory",
+                    children: [
+                        {
+                            name: "📁 工作项目",
+                            type: "directory",
+                            children: [
+                                { name: "📄 年度总结.docx", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                                { name: "📄 预算表.xlsx", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                            ]
+                        },
+                        {
+                            name: "📁 个人笔记",
+                            type: "directory",
+                            children: [
+                                { name: "📄 日记.txt", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                                { name: "📄 食谱.md", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                            ]
+                        },
+                        { name: "📄 读书清单.txt", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                    ]
+                },
+                {
+                    name: "📁 图片",
+                    type: "directory",
+                    children: [
+                        { name: "📄 旅行.jpg", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" },
+                        { name: "📄 生日.png", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                    ]
+                },
+                {
+                    name: "📁 音乐",
+                    type: "directory",
+                    children: [
+                        { name: "📄 夏天的风.mp3", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+                    ]
+                },
+                { name: "📄 说明.md", type: "file", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf" }
+            ]
+        };
+
+        // 转换为层级数据，并定义 children 访问器（仅目录且有子节点时展开）
+        const root = d3.hierarchy(data, function(d) {
+            if (d.type === 'directory' && d.children && d.children.length > 0) {
+                return d.children;
+            }
+            return null;
+        });
+
+        // ---------- 计算每个节点的文件数量（自身及后代中的文件个数）----------
+        function computeFileCount(node) {
+            if (node.data.type === 'file') {
+                node.fileCount = 1;
+            } else {
+                node.fileCount = 0;
+            }
+            if (node.children) {
+                node.children.forEach(child => {
+                    node.fileCount += computeFileCount(child);
+                });
+            }
+            return node.fileCount;
+        }
+        computeFileCount(root);
+
+        // 找出最大文件数
+        let maxFileCount = 0;
+        root.links().forEach(link => {
+            if (link.target.fileCount > maxFileCount) maxFileCount = link.target.fileCount;
+        });
+        if (maxFileCount === 0) maxFileCount = 1;
+
+        const minWidth = 6;
+        const maxWidth = 38;
+        function getStrokeWidth(fileCount) {
+            return minWidth + (fileCount / maxFileCount) * (maxWidth - minWidth);
+        }
+
+        // 树布局
+        const treeLayout = d3.tree()
+            .size([height - 150, width - 300])
+            .separation((a, b) => (a.parent === b.parent ? 2.2 : 3.5));
+
+        treeLayout(root);
+
+        // 绘制连线 —— 粗细动态，并已通过CSS获得圆角末端
+        svg.selectAll(".link")
+            .data(root.links())
+            .enter()
+            .append("path")
+            .attr("class", "link")
+            .attr("d", d3.linkHorizontal()
+                .x(d => d.y)
+                .y(d => d.x)
+            )
+            .attr("stroke-width", d => getStrokeWidth(d.target.fileCount));
+
+        // 绘制节点组
+        const nodes = svg.selectAll(".node")
+            .data(root.descendants())
+            .enter()
+            .append("g")
+            .attr("class", d => `node ${d.data.type || 'directory'}`)
+            .attr("transform", d => `translate(${d.y},${d.x})`)
+            .on("click", function(event, d) {
+                if (d.data.type === 'file' && d.data.url) {
+                    window.open(d.data.url, '_blank');
+                }
+                event.stopPropagation();
+            });
+
+        nodes.append("circle")
+            .attr("class", d => d.depth === 0 ? "source-circle" : "node-circle")
+            .attr("r", d => {
+                if (d.depth === 0) return 22;
+                return d.data.type === 'file' ? 16 : 14;
+            });
+
+        nodes.append("text")
+            .attr("class", d => d.depth === 0 ? "source-label" : "node-label")
+            .attr("dy", "0.35em")
+            .attr("x", d => (d.children && d.children.length > 0) ? -30 : 30)
+            .style("text-anchor", d => (d.children && d.children.length > 0) ? "end" : "start")
+            .text(d => d.data.name);
+
+        // 标题和脚注
+        svg.append("text")
+            .attr("class", "title")
+            .attr("x", 50)
+            .attr("y", 50)
+            .text("📂 文件数量权重树 (圆角枝端)");
+
+        svg.append("text")
+            .attr("class", "subtitle")
+            .attr("x", 50)
+            .attr("y", 90)
+            .text("🔗 树干粗细代表文件总数，末端圆角更自然");
+
+        svg.append("text")
+            .attr("class", "footer")
+            .attr("x", 50)
+            .attr("y", height - 30)
+            .text("🌳 文件数量越多连线越粗，点击琥珀色文件打开示例PDF。");
+
+        svg.append("text")
+            .attr("class", "footer")
+            .attr("x", width - 300)
+            .attr("y", height - 30)
+            .text(`📊 最大文件数: ${maxFileCount} (线宽 ${minWidth}~${maxWidth}px)`);
+    })();
+</script>
+
+<div style="text-align: center; margin-top: 10px; color: #6b4f35; max-width:1300px;">
+    ⚡ 现在每根树枝的末端都变成了圆角，与树干的自然形态更契合。
+</div>
+</body>
+</html>
